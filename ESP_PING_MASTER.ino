@@ -78,6 +78,8 @@ void setup()
   My_LCD.clear();
   My_LCD.setCursor(3,1);
   My_LCD.print("ESP PING-MASTER");
+  My_LCD.setCursor(5,2);
+  My_LCD.print("by @MRINAL");
   delay(4000);
   My_LCD.clear();
   
@@ -175,6 +177,10 @@ void pingTest()
       ledcWrite(greenChannel, leddutyCycle);
       My_LCD.setCursor(0,3);
       My_LCD.print("Online");
+      My_LCD.setCursor(7,3);
+      My_LCD.print("MS=");
+      My_LCD.setCursor(10,3);
+      My_LCD.print(Ping.averageTime(),0);
       My_LCD.setCursor(16,3);
       My_LCD.print(WiFi.RSSI());
      
