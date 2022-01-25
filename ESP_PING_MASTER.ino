@@ -10,6 +10,7 @@ LiquidCrystal My_LCD(13, 12, 14, 27, 26, 25);
 #define buz 17
 int flag = 0;
 int flag2 = 0;
+float pingTime = 0;
 
 const int ledfreq = 5000;
 const int buzfreq = 450;
@@ -26,7 +27,7 @@ const int resolution = 8;
 const char* ssid     = "MRINAL";
 const char* password = "mrinal maity";
 
-const IPAddress remote_ip(1, 1, 1, 1);
+const IPAddress remote_ip(8, 8, 8, 8);
 const char* remote_host = "www.google.com";
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 19800;
@@ -123,7 +124,7 @@ void ipCheck()
   My_LCD.setCursor(0,1);
   My_LCD.print("Ping: ");
   My_LCD.setCursor(6,1);
-  My_LCD.print(remote_host);
+  My_LCD.print(remote_ip);
 }
 
 void wifiCheck()
@@ -161,7 +162,9 @@ void pingTest()
     if(flag2 == 1)
     {
       My_LCD.setCursor(0,3);
-      My_LCD.print("Online");
+      My_LCD.print("Online MS=");
+      My_LCD.setCursor(10,3);
+      My_LCD.print(pingTime,0);
     }
     if(flag2 == 0)
     {
@@ -169,7 +172,7 @@ void pingTest()
       My_LCD.print("No internet");
     }
     
-    if(Ping.ping(remote_host))//if(Ping.ping(remote_ip)) 
+    if(Ping.ping(remote_ip))//if(Ping.ping(remote_ip)) 
     {
       flag = flag + 1;
       flag2 = 1;
@@ -183,6 +186,7 @@ void pingTest()
       My_LCD.print(Ping.averageTime(),0);
       My_LCD.setCursor(16,3);
       My_LCD.print(WiFi.RSSI());
+      pingTime = Ping.averageTime();
      
     }
     else
