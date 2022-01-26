@@ -8,12 +8,21 @@ LiquidCrystal My_LCD(13, 12, 14, 27, 26, 25);
 #define green 2
 #define red 16
 #define buz 17
+
+///////////function declaration///////////////
+void printLocalTime();
+void ipCheck();
+void pingTest();
+void printLocalTime();
+
+
 int flag = 0;
 int flag2 = 0;
+int wifiRSSI = 0;
 float pingTime = 0;
 
 const int ledfreq = 5000;
-const int buzfreq = 450;
+const int buzfreq = 1000;
 const int leddutyCycle = 80;
 const int buzdutyCycle = 0;
 
@@ -53,7 +62,9 @@ void setup()
   ledcAttachPin(yellow, yellowChannel);
   ledcAttachPin(buz, buzChannel);
 
-  
+  ledcWrite(buzChannel, 250);
+  delay(1000);
+  ledcWrite(buzChannel, 0);
   for(int i = 0; i<=3; i++)
   {
     ledcWrite(i, 250);
@@ -83,10 +94,10 @@ void setup()
   My_LCD.print("by @MRINAL");
   delay(4000);
   My_LCD.clear();
+
   
   My_LCD.print("Connecting to WiFi");
-  WiFi.begin(ssid, password);
-  
+  WiFi.begin(ssid, password); 
   while (WiFi.status() != WL_CONNECTED) 
   {
     ledcWrite(blueChannel, leddutyCycle);
@@ -124,33 +135,7 @@ void ipCheck()
   My_LCD.setCursor(0,1);
   My_LCD.print("Ping: ");
   My_LCD.setCursor(6,1);
-  My_LCD.print(remote_ip);
-}
-
-void wifiCheck()
-{
-  if(WiFi.status() != WL_CONNECTED)
-  {
-    ledcWrite(yellowChannel, 0);
-   
-    My_LCD.clear();
-  
-    My_LCD.print("Connecting to WiFi");
-    WiFi.begin(ssid, password);
-  
-  while (WiFi.status() != WL_CONNECTED) 
-  {
-    ledcWrite(blueChannel, leddutyCycle);
-    delay(250);
-    ledcWrite(blueChannel, 0);
-    delay(250);
-  }
-    ledcWrite(yellowChannel, leddutyCycle);
-    My_LCD.setCursor(5,2);
-    My_LCD.print("Connected!");
-    delay(1000);
-    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  }
+  My_LCD.print(remote_host);
 }
 
 void pingTest()
@@ -165,14 +150,18 @@ void pingTest()
       My_LCD.print("Online MS=");
       My_LCD.setCursor(10,3);
       My_LCD.print(pingTime,0);
+      My_LCD.setCursor(16,3);
+      My_LCD.print(wifiRSSI);
     }
-    if(flag2 == 0)
+    if(flag2 == 2)
     {
       My_LCD.setCursor(0,3);
       My_LCD.print("No internet");
+      My_LCD.setCursor(16,3);
+      My_LCD.print(wifiRSSI);
     }
     
-    if(Ping.ping(remote_ip))//if(Ping.ping(remote_ip)) 
+    if(Ping.ping(remote_host))//if(Ping.ping(remote_ip)) 
     {
       flag = flag + 1;
       flag2 = 1;
@@ -187,12 +176,13 @@ void pingTest()
       My_LCD.setCursor(16,3);
       My_LCD.print(WiFi.RSSI());
       pingTime = Ping.averageTime();
+      wifiRSSI = WiFi.RSSI();
      
     }
     else
     {  
       flag = flag + 1;
-      flag2 = 0;
+      flag2 = 2;
       ledcWrite(blueChannel, 0);
       ledcWrite(redChannel, leddutyCycle);
       ledcWrite(buzChannel, buzdutyCycle);
@@ -200,6 +190,7 @@ void pingTest()
       My_LCD.print("No internet");
       My_LCD.setCursor(16,3);
       My_LCD.print(WiFi.RSSI());
+      wifiRSSI = WiFi.RSSI();
     }
   
   }
@@ -207,15 +198,36 @@ void pingTest()
 
 void loop() 
 {
-  wifiCheck();
-  My_LCD.clear();
-  printLocalTime();
-  ipCheck();
-  pingTest();
-  printLocalTime();
-  delay(2000);
-  ledcWrite(greenChannel, 0);
-  ledcWrite(redChannel, 0);
-  ledcWrite(buzChannel, 0);
-  flag = 0;
+  if(WiFi.status() == WL_CONNECTED)
+  {
+    My_LCD.clear();
+    printLocalTime();
+    ipCheck();
+    pingTest();
+    printLocalTime();
+    delay(2000);
+    ledcWrite(greenChannel, 0);
+    ledcWrite(redChannel, 0);
+    ledcWrite(buzChannel, 0);
+    flag = 0;
+  }
+  else
+  {
+    ledcWrite(yellowChannel, 0);
+    My_LCD.clear();
+    My_LCD.print("Connecting to WiFi");
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) 
+    {
+      ledcWrite(blueChannel, leddutyCycle);
+      delay(250);
+      ledcWrite(blueChannel, 0);
+      delay(250);
+    }
+      ledcWrite(yellowChannel, leddutyCycle);
+      My_LCD.setCursor(5,2);
+      My_LCD.print("Connected!");
+      delay(1000);
+      configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    }
 }
