@@ -15,6 +15,11 @@ void ipCheck();
 void pingTest();
 void printLocalTime();
 
+int singalQuality[]={100,100,100,100,100,100,100,100,100,100,100,100,100,100,
+100,100,100,100,100,100,100,99,99,99,98,98,98,97,97,96,96,95,95,94,93,93,92,
+91,90,90,89,88,87,86,85,84,83,82,81,80,79,78,76,75,74,73,71,70,69,67,66,64,
+63,61,60,58,56,55,53,51,50,48,46,44,42,40,38,36,34,32,30,28,26,24,22,20,
+17,15,13,10,8,6,3,1,1,1,1,1,1,1,1};
 
 int flag = 0;
 int flag2 = 0;
@@ -151,14 +156,18 @@ void pingTest()
       My_LCD.setCursor(10,3);
       My_LCD.print(pingTime,0);
       My_LCD.setCursor(16,3);
-      My_LCD.print(wifiRSSI);
+      My_LCD.print(singalQuality[wifiRSSI]);
+      My_LCD.setCursor(19,3);
+      My_LCD.print("%");
     }
     if(flag2 == 2)
     {
       My_LCD.setCursor(0,3);
       My_LCD.print("No internet");
       My_LCD.setCursor(16,3);
-      My_LCD.print(wifiRSSI);
+      My_LCD.print(singalQuality[wifiRSSI]);
+      My_LCD.setCursor(19,3);
+      My_LCD.print("%");
     }
     
     if(Ping.ping(remote_host))//if(Ping.ping(remote_ip)) 
@@ -174,9 +183,11 @@ void pingTest()
       My_LCD.setCursor(10,3);
       My_LCD.print(Ping.averageTime(),0);
       My_LCD.setCursor(16,3);
-      My_LCD.print(WiFi.RSSI());
+      My_LCD.print(singalQuality[wifiRSSI]);
+      My_LCD.setCursor(19,3);
+      My_LCD.print("%");
       pingTime = Ping.averageTime();
-      wifiRSSI = WiFi.RSSI();
+      wifiRSSI = WiFi.RSSI()*(-1);
      
     }
     else
@@ -189,8 +200,10 @@ void pingTest()
       My_LCD.setCursor(0,3);
       My_LCD.print("No internet");
       My_LCD.setCursor(16,3);
-      My_LCD.print(WiFi.RSSI());
-      wifiRSSI = WiFi.RSSI();
+      My_LCD.print(singalQuality[wifiRSSI]);
+      My_LCD.setCursor(19,3);
+      My_LCD.print("%");
+      wifiRSSI = WiFi.RSSI()*(-1);
     }
   
   }
